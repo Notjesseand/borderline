@@ -6,6 +6,8 @@ import { IoPersonOutline } from "react-icons/io5";
 import { GrStatusGood } from "react-icons/gr";
 import { LuUpload } from "react-icons/lu";
 import Link from "next/link";
+import axios from "axios";
+import { authenticateFarmer } from "@/api/farmerAuth";
 import {
   Select,
   SelectContent,
@@ -19,11 +21,11 @@ const Page = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    number: "",
+    credential: "",
     email: "",
-    age: 18,
+    ageGroup: 18,
     gender: "",
-    address: "",
+    resAddress: "",
     site: "",
     id_type: "",
     id_number: 0,
@@ -75,7 +77,10 @@ const Page = () => {
     const { firstName, lastName, password, confirmPassword } = formData;
 
     const isValid =
-      firstName.length > 0 && lastName.length > 0 && password.length > 0 && confirmPassword.length > 0;
+      firstName.length > 0 &&
+      lastName.length > 0 &&
+      password.length > 0 &&
+      confirmPassword.length > 0;
 
     setValidationState(isValid);
   };
@@ -95,7 +100,16 @@ const Page = () => {
     }));
   };
 
-  console.log(validationState);
+  // Handle submit function
+  const handleSubmit = async () => {
+    try {
+      const farmer = await authenticateFarmer(formData);
+      console.log("Farmer authenticated:", farmer);
+    } catch (error) {
+      console.log("Error during form submission:", error);
+    }
+  };
+
   return (
     <div className="font-poppins text-base pb-12">
       <div className="grid lg:grid-cols-2 relative">
@@ -128,7 +142,7 @@ const Page = () => {
             <p className="capitalize text-2xl font-semibold">create account</p>
             <p className="text-lg my-2 capitalize">personal information</p>
             {/* form */}
-            <form action="" method="post" className="mt-5 text-[15px]">
+            <div className="mt-5 text-[15px]">
               <div className="flex w-full justify-between gap-2 text-[15px]">
                 <div className="w-1/2">
                   <label htmlFor="first_name" className="flex pt-2">
@@ -159,7 +173,7 @@ const Page = () => {
                 </div>
               </div>
               {/* phone number */}
-              <label htmlFor="number" className="flex pt-3 text-[15px]">
+              <label htmlFor="credential" className="flex pt-3 text-[15px]">
                 Phone Number*
               </label>
               <div className="flex w-full justify-between gap-3 text-[15px] mt-1 items-center">
@@ -181,7 +195,7 @@ const Page = () => {
                 <div className="sm:w-full flex flex-grow">
                   <input
                     type="tel"
-                    name="number"
+                    name="credential"
                     onChange={handleChange}
                     placeholder="000 0000 000"
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -206,12 +220,12 @@ const Page = () => {
               {/* age and gender */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label htmlFor="age" className="flex pt-3">
+                  <label htmlFor="ageGroup" className="flex pt-3">
                     Age*
                   </label>
                   <input
                     type="number"
-                    name="age"
+                    name="ageGroup"
                     onChange={handleChange}
                     placeholder="Enter age"
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -253,12 +267,12 @@ const Page = () => {
               </div>
               {/* residential address */}
               <div className="w-full">
-                <label htmlFor="address" className="flex pt-3">
+                <label htmlFor="resAddress" className="flex pt-3">
                   Residential Address*
                 </label>
                 <input
                   type="text"
-                  name="address"
+                  name="resAddress"
                   onChange={handleChange}
                   placeholder="Ex: No 21 Agaro road, Abeokuta."
                   className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -437,16 +451,25 @@ const Page = () => {
                   Back
                 </button>
                 {validationState == true ? (
-                  <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]">
+                  <button
+                    onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]"
+                  >
                     Continue
                   </button>
                 ) : (
-                  <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF]">
+                  // <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF]">
+                  //   Continue
+                  // </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]"
+                  >
                     Continue
                   </button>
                 )}
               </div>
-            </form>
+            </div>
           </div>
         </section>
       </div>
