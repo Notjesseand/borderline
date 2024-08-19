@@ -7,7 +7,7 @@ import { GrStatusGood } from "react-icons/gr";
 import { LuUpload } from "react-icons/lu";
 import Link from "next/link";
 import axios from "axios";
-import { authenticateFarmer } from "@/api/farmerAuth";
+import { authenticateFarmer}  from "@/api/farmerAuth";
 import {
   Select,
   SelectContent,
@@ -34,6 +34,10 @@ const Page = () => {
     image: null,
     confirmPassword: "",
   });
+
+  const dataArray = {formData}
+
+  const data = {formData}
 
   const [fileName, setFileName] = useState("No file chosen");
 
@@ -101,7 +105,8 @@ const Page = () => {
   };
 
   // Handle submit function
-  const handleSubmit = async () => {
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
     try {
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
@@ -109,6 +114,7 @@ const Page = () => {
       console.log("Error during form submission:", error);
     }
   };
+
 
   return (
     <div className="font-poppins text-base pb-12">
