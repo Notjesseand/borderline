@@ -10,8 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { lineSpinner } from "ldrs";
 
 const Page = () => {
+  if (typeof window !== "undefined") {
+    lineSpinner.register();
+  }
+
   const [formData, setFormData] = useState({
     userDetails: {
       firstName: "",
@@ -61,6 +66,12 @@ const Page = () => {
       },
     ],
   });
+
+  const [loading, setLoading] = useState(false);
+
+  const toggle = () => {
+    setLoading(!loading);
+  };
 
   const [hasSmartphone, setHasSmartphone] = useState<boolean | null>(null);
   // Fetch data from localStorage when the component mounts
@@ -123,6 +134,7 @@ const Page = () => {
       router.push("/farm");
     }, 2000);
     localStorage.setItem("formData", JSON.stringify(formData));
+    toggle();
   };
 
   return (
@@ -273,7 +285,16 @@ const Page = () => {
                     onClick={handleSubmit}
                     className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]"
                   >
-                    Continue
+                    {loading ? (
+                      <l-line-spinner
+                        size="21"
+                        stroke="3"
+                        speed="1"
+                        color="white"
+                      ></l-line-spinner>
+                    ) : (
+                      "Continue"
+                    )}
                   </button>
                 ) : (
                   <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF] cursor-not-allowed">

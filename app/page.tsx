@@ -6,6 +6,7 @@ import { IoPersonOutline } from "react-icons/io5";
 import { GrStatusGood } from "react-icons/gr";
 import { LuUpload } from "react-icons/lu";
 import Link from "next/link";
+import { lineSpinner } from "ldrs";
 import axios from "axios";
 import { authenticateFarmer } from "@/api/farmerAuth";
 import {
@@ -19,6 +20,10 @@ import { useRouter } from "next/navigation";
 
 const Page = () => {
   const [error, setError] = useState("");
+  if (typeof window !== "undefined") {
+    lineSpinner.register();
+  }
+
   // all form data
   const [formData, setFormData] = useState({
     userDetails: {
@@ -67,6 +72,12 @@ const Page = () => {
   });
 
   const [fileName, setFileName] = useState("No file chosen");
+
+  const [loading, setLoading] = useState(false);
+
+  const toggle = () => {
+    setLoading(!loading);
+  };
 
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -126,30 +137,6 @@ const Page = () => {
     validatePassword();
   }, [formData]);
 
-  // update form data state
-  // const handleChange = (event: any) => {
-  //   const { name, value } = event?.target;
-  //   if (name === "siteId") {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       siteId: value,
-  //     }));
-  //   } else if (name === "idNumber") {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       idUpload: { ...prevData.idUpload, idNumber: value },
-  //     }));
-  //   } else {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       userDetails: {
-  //         ...prevData.userDetails,
-  //         [name]: value,
-  //       },
-  //     }));
-  //   }
-  // };
-
   const handleChange = (event: any) => {
     const { name, value } = event?.target;
     if (name === "siteId") {
@@ -187,21 +174,8 @@ const Page = () => {
       router.push("/bank");
     }, 2000);
     localStorage.setItem("formData", JSON.stringify(formData));
+    toggle();
   };
-
-  // funtion to submit form Data
-  // set formData to storage to enable access in other form pages
-  // const handleSubmit = async (e: any) => {
-  //   e.preventDefault();
-  //   // try {
-  //   //   const farmer = await authenticateFarmer(formData);
-  //   //   console.log("Farmer authenticated:", farmer);
-  //   // } catch (error) {
-  //   //   console.log("Error during form submission:", error);
-  //   // }
-
-  //   localStorage.setItem("formData", JSON.stringify(formData));
-  // };
 
   return (
     <div className="font-poppins text-base pb-12">
@@ -234,6 +208,7 @@ const Page = () => {
           <div className="w-[90%] sm:w-3/4 mx-auto pt-14">
             <p className="capitalize text-2xl font-semibold">create account</p>
             <p className="text-lg my-2 capitalize">personal information</p>
+
             {/* form */}
             <div className="mt-5 text-[15px]">
               <div className="flex w-full justify-between gap-2 text-[15px]">
@@ -390,7 +365,10 @@ const Page = () => {
               </label>
               <Select
                 onValueChange={(value) =>
-                  setFormData((prevData) => ({ ...prevData, idUpload: {...prevData.idUpload, idType: value} }))
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    idUpload: { ...prevData.idUpload, idType: value },
+                  }))
                 }
               >
                 <SelectTrigger className="w-full outline-none ring-0">
@@ -548,17 +526,32 @@ const Page = () => {
                     onClick={handleSubmit}
                     className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]"
                   >
-                    Continue
+                    {loading ? (
+                      <l-line-spinner
+                        size="40"
+                        stroke="3"
+                        speed="1"
+                        color="black"
+                      ></l-line-spinner>
+                    ) : (
+                      "Continue"
+                    )}
                   </button>
                 ) : (
-                  // <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF]">
-                  //   Continue
-                  // </button>
                   <button
                     onClick={handleSubmit}
-                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]"
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg mt-2 bg-[#0E9874]"
                   >
-                    Continue
+                    {loading ? (
+                      <l-line-spinner
+                        size="21"
+                        stroke="3"
+                        speed="1"
+                        color="white"
+                      ></l-line-spinner>
+                    ) : (
+                      "Continue"
+                    )}
                   </button>
                 )}
               </div>

@@ -9,6 +9,8 @@ import { LuUpload } from "react-icons/lu";
 import { LuPlus } from "react-icons/lu";
 import { LuUploadCloud } from "react-icons/lu";
 import { authenticateFarmer } from "@/api/farmerAuth";
+import { lineSpinner } from "ldrs";
+
 import Link from "next/link";
 import {
   Select,
@@ -21,6 +23,10 @@ import {
 } from "@/components/ui/select";
 
 const Page = () => {
+  if (typeof window !== "undefined") {
+    lineSpinner.register();
+  }
+
   // all form data
 
   const [formData, setFormData] = useState({
@@ -88,7 +94,7 @@ const Page = () => {
 
   const [fileName, setFileName] = useState("No file chosen");
 
-  console.log(fileName)
+  console.log(fileName);
 
   const handleFileChange = (event: any, index: number) => {
     const file = event.target.files[0];
@@ -258,12 +264,12 @@ const Page = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
+      console.log("FormData:", formData); // Add this line
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
     } catch (error) {
       console.log("Error during form submission:", error);
     }
-    // localStorage.setItem("formData", "");
   };
 
   console.log(formData);
@@ -305,6 +311,7 @@ const Page = () => {
           {/* personal information  */}
           <div className="w-[90%] sm:w-3/4 mx-auto pt-14">
             <p className="capitalize text-2xl font-semibold">create account</p>
+
             <p className="text-lg my-2 capitalize">Farm Registration</p>
             {/* form */}
             <div className="mt-5 text-[15px]">
