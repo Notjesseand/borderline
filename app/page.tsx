@@ -101,6 +101,12 @@ const Page = () => {
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const handleConfirmPasswordChange = (event: any) => {
+    const { name, value } = event.target;
+    setConfirmPassword(value);
+    console.log(confirmPassword);
+  };
+
   const validatePassword = () => {
     const { password } = formData.userDetails;
 
@@ -115,6 +121,10 @@ const Page = () => {
     }
   };
 
+  useEffect(() => {
+    validatePassword();
+  }, []);
+
   // validate all form fields
   const [validationState, setValidationState] = useState(false);
 
@@ -123,10 +133,9 @@ const Page = () => {
     const { firstName, lastName, password } = formData.userDetails;
 
     const isValid =
-      firstName.length > 0 &&
-      lastName.length > 0 &&
-      password.length > 0 &&
-      confirmPassword.length > 0;
+      firstName.length > 0 && lastName.length > 0 && password.length > 0;
+    //  &&
+    // confirmPassword.length > 0;
 
     setValidationState(isValid);
   };
@@ -432,13 +441,13 @@ const Page = () => {
               <label htmlFor="confirm_password" className="flex pt-3">
                 Confirm password
               </label>
-              {/* <input
+              <input
                 type="password"
                 name="confirmPassword"
-                onChange={handleChange}
+                onChange={handleConfirmPasswordChange}
                 value={confirmPassword}
                 className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-              /> */}
+              />
               {error && confirmPassword.length > 0 && (
                 <p className="text-red-500">{error}</p>
               )}
@@ -539,19 +548,10 @@ const Page = () => {
                   </button>
                 ) : (
                   <button
-                    onClick={handleSubmit}
-                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg mt-2 bg-[#0E9874]"
+                    // onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg mt-2 bg-[#6ea395] disabled: cursor-not-allowed"
                   >
-                    {loading ? (
-                      <l-line-spinner
-                        size="21"
-                        stroke="3"
-                        speed="1"
-                        color="white"
-                      ></l-line-spinner>
-                    ) : (
-                      "Continue"
-                    )}
+                    Continue
                   </button>
                 )}
               </div>

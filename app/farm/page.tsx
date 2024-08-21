@@ -55,7 +55,7 @@ const Page = () => {
     // optional, only send if hasBankAccount is true
     bankDetails: {
       accountNumber: "666666666666",
-      bankName: "Kuda", // Move bankName inside bankDetails
+      bankName: "Kuda",
     },
     farmDetails: [
       {
@@ -187,24 +187,33 @@ const Page = () => {
   const [validationState, setValidationState] = useState(false);
 
   // validate form
-  const validate = () => {
-    if (Array.isArray(formData.farmDetails)) {
-      formData.farmDetails.forEach((farmDetail) => {
-        const { name, long, lat, docUploads, crops } = farmDetail;
-        // do something with the variables
-        name.length > 0 &&
-        long.toString.length > 0 &&
-        lat.toString.length > 0 &&
-        crops.length > 0
-          ? setValidationState(true)
-          : setValidationState(false);
+ const validate = () => {
+   if (Array.isArray(formData.farmDetails)) {
+     let isValid = true;
+     formData.farmDetails.forEach((farmDetail) => {
+       const { name, long, lat, crops } = farmDetail;
 
-        console.log(validationState);
-      });
-    } else {
-      console.error("formData.farmDetails is not an array");
-    }
-  };
+       console.log("jaja", name, lat, long, crops);
+
+       if (
+         !name ||
+         !long ||
+         !lat ||
+         !crops ||
+         name.length === 0 ||
+         long.toString().length === 0 ||
+         lat.toString().length === 0 ||
+         crops.toString().length === 0
+       ) {
+         isValid = false;
+       }
+     });
+
+     setValidationState(isValid);
+   } else {
+     console.error("formData.farmDetails is not an array");
+   }
+ };
 
   // Run validation on formData change
   useEffect(() => {
@@ -214,6 +223,8 @@ const Page = () => {
   // update form data state
   const handleChange = (event: any) => {
     const { name, value } = event.target;
+
+    validate();
 
     let newValue;
 
@@ -260,9 +271,15 @@ const Page = () => {
     }
   };
 
+  const [loading, setLoading] = useState(false);
+
+  const toggle = () => {
+    setLoading(true);
+  };
   // funtion to submit form Data
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+    toggle();
     try {
       console.log("FormData:", formData); // Add this line
       const farmer = await authenticateFarmer(formData);
@@ -276,9 +293,7 @@ const Page = () => {
   console.log("cropAndMonths", cropAndMonths);
 
   // dropzone
-  const onDrop = useCallback((acceptedFiles: any) => {
-    // Do something with the files
-  }, []);
+  const onDrop = useCallback((acceptedFiles: any) => {}, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
@@ -534,8 +549,20 @@ const Page = () => {
                   Back
                 </button>
                 {validationState == true ? (
-                  <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]">
-                    Add Farm
+                  <button
+                    onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#0E9874]"
+                  >
+                    {loading ? (
+                      <l-line-spinner
+                        size="21"
+                        stroke="3"
+                        speed="1"
+                        color="white"
+                      ></l-line-spinner>
+                    ) : (
+                      "Add Farm"
+                    )}
                   </button>
                 ) : (
                   <button
