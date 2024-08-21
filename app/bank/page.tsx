@@ -1,10 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import ParticlesDemo from "@/components/home/particles";
 import { IoIosArrowBack } from "react-icons/io";
-import { IoPersonOutline } from "react-icons/io5";
-import { GrStatusGood } from "react-icons/gr";
-import { LuUpload } from "react-icons/lu";
 import Link from "next/link";
 import {
   Select,
@@ -13,18 +9,120 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-  // all form data
   const [formData, setFormData] = useState({
-    phone: "",
-    account: "",
+    userDetails: {
+      firstName: "",
+      lastName: "",
+      credential: "",
+      email: "",
+      password: "",
+      roleName: "farmer",
+      gender: "",
+      resAddress: "",
+      ageGroup: "",
+      hasBankAccount: false,
+      hasSmartphone: false,
+      profilePic: {
+        url: "img.jpg",
+      },
+    },
+    siteId: "",
+    idUpload: {
+      idType: "",
+      idNumber: "",
+      url: "",
+    },
+    // optional, only send if hasBankAccount is true
+    bankDetails: {
+      accountNumber: "666666666666",
+      bankName: "Kuda", // Move bankName inside bankDetails
+    },
+    farmDetails: [
+      {
+        name: "",
+        address: "adress",
+        long: 0,
+        lat: 0,
+        docUploads: [
+          {
+            url: "img.jpg",
+          },
+        ],
+        crops: [
+          {
+            cropId: "",
+            farmSeasonStart: "",
+            farmSeasonEnd: "",
+          },
+        ],
+      },
+    ],
   });
 
-  // update form data state
+  const [hasSmartphone, setHasSmartphone] = useState<boolean | null>(null);
+  // Fetch data from localStorage when the component mounts
+  useEffect(() => {
+    const data = localStorage.getItem("formData");
+    let parsedFormData: any = {};
+    if (data) {
+      parsedFormData = JSON.parse(data);
+    }
+    setFormData(parsedFormData);
+
+    // Log the data to the console
+    console.log("Stored Data:", data);
+  }, []);
+
   const handleChange = (event: any) => {
-    const { name, value } = event?.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value } = event.target;
+
+    let newValue;
+
+    if (value === "true") {
+      newValue = true;
+    } else if (value === "false") {
+      newValue = false;
+    } else {
+      newValue = value;
+    }
+
+    if (
+      name === "bankName" ||
+      name === "accountNumber" ||
+      name === " hasSmartphone"
+    ) {
+      setFormData((prevData) => ({
+        ...prevData,
+        bankDetails: {
+          ...prevData.bankDetails,
+          [name]: newValue,
+        },
+      }));
+    } else if (name === "hasBankAccount") {
+      setFormData((prevData) => ({
+        ...prevData,
+        userDetails: { ...prevData.userDetails, hasSmartphone: newValue },
+      }));
+    }
+  };
+
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value === "true";
+    setHasSmartphone(value);
+    handleChange(event);
+  };
+
+  // set formData to storage to enable access in other form pages
+  const router = useRouter();
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setTimeout(() => {
+      router.push("/farm");
+    }, 2000);
+    localStorage.setItem("formData", JSON.stringify(formData));
   };
 
   return (
@@ -66,29 +164,26 @@ const Page = () => {
                 {/* yes option */}
                 <input
                   type="radio"
-                  name="phone"
-                  value="yes"
+                  name="hasSmartphone"
+                  value="true"
                   id="phone-yes"
                   className="m-1"
-                  onChange={handleChange}
-                  checked={formData.phone === "yes"}
+                  onChange={handleRadioChange}
                 />
                 <label htmlFor="phone-yes">Yes</label>
 
                 {/* no option */}
                 <input
                   type="radio"
-                  name="phone"
-                  value="no"
+                  name="hasSmartphone"
+                  value="false"
                   id="phone-no"
                   className="m-1 ml-4"
-                  onChange={handleChange}
-                  checked={formData.phone === "no"}
+                  onChange={handleRadioChange}
                 />
                 <label htmlFor="phone-no">No</label>
               </div>
 
-              {/* Bank Account */}
               {/* Bank Account */}
               <label htmlFor="account" className="flex pt-3">
                 Do you have a Bank Account?
@@ -98,35 +193,37 @@ const Page = () => {
                 {/* yes option */}
                 <input
                   type="radio"
-                  name="account"
-                  value="yes"
+                  name="hasBankAccount"
+                  // @ts-ignore
+                  value="true"
                   id="account-yes"
                   className="m-1"
-                  onChange={handleChange}
-                  checked={formData.account === "yes"}
+                  onChange={handleRadioChange}
                 />
                 <label htmlFor="account-yes">Yes</label>
 
                 {/* no option */}
                 <input
                   type="radio"
-                  name="account"
-                  value="no"
+                  name="hasBankAccount"
+                  // @ts-ignore
+                  value="false"
                   id="account-no"
                   className="m-1 ml-4"
-                  onChange={handleChange}
-                  checked={formData.account === "no"}
+                  onChange={handleRadioChange}
                 />
                 <label htmlFor="account-no">No</label>
               </div>
-
               {/* bank name */}
               <label htmlFor="ID type" className="flex pt-3 pb-1">
                 Bank Name*
               </label>
               <Select
                 onValueChange={(value) =>
-                  setFormData((prevData) => ({ ...prevData, id_type: value }))
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    bankDetails: { ...prevData?.bankDetails, bankName: value },
+                  }))
                 }
               >
                 <SelectTrigger className="w-full outline-none focus:outline-none">
@@ -147,8 +244,8 @@ const Page = () => {
                   </label>
                   <input
                     type="number"
-                    name="account"
-                    value={formData.account.slice(0, 8)}
+                    name="accountNumber"
+                    // value={formData.account.slice(0, 8)}
                     onChange={handleChange}
                     placeholder="Enter account number"
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -156,9 +253,9 @@ const Page = () => {
                 </div>
               </div>
 
-              {formData.account.length === 0 ? (
+              {formData.bankDetails?.accountNumber?.length === 0 ? (
                 <p className="text-green-600 ml-1 invisible">i</p>
-              ) : formData.account.length > 3 ? (
+              ) : formData.bankDetails?.accountNumber?.length > 3 ? (
                 <p className="text-green-600 ml-1">Future Hendrix</p>
               ) : (
                 <p className="text-red-600 ml-1">
@@ -171,8 +268,11 @@ const Page = () => {
                 <button className="w-1/2 text-center border-2 border-slate-400 rounded-lg py-2 mt-2">
                   Back
                 </button>
-                {formData.account.length > 0 && formData.phone.length ? (
-                  <button className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]">
+                {formData.bankDetails?.accountNumber?.length > 0 ? (
+                  <button
+                    onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]"
+                  >
                     Continue
                   </button>
                 ) : (

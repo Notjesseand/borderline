@@ -8,6 +8,7 @@ import { GrStatusGood } from "react-icons/gr";
 import { LuUpload } from "react-icons/lu";
 import { LuPlus } from "react-icons/lu";
 import { LuUploadCloud } from "react-icons/lu";
+import { authenticateFarmer } from "@/api/farmerAuth";
 import Link from "next/link";
 import {
   Select,
@@ -21,42 +22,159 @@ import {
 
 const Page = () => {
   // all form data
+
   const [formData, setFormData] = useState({
-    name: "",
-    crop: "",
-    longtitude: "",
-    latitude: "",
-    start_month: "",
-    end_month: "",
-    image: null,
+    userDetails: {
+      firstName: "",
+      lastName: "",
+      credential: "",
+      email: "",
+      password: "",
+      roleName: "farmer",
+      gender: "",
+      resAddress: "",
+      ageGroup: "",
+      hasBankAccount: false,
+      hasSmartphone: false,
+      profilePic: {
+        url: "img.jpg",
+      },
+    },
+    siteId: "",
+    idUpload: {
+      idType: "",
+      idNumber: "",
+      url: "",
+    },
+    // optional, only send if hasBankAccount is true
+    bankDetails: {
+      accountNumber: "666666666666",
+      bankName: "Kuda", // Move bankName inside bankDetails
+    },
+    farmDetails: [
+      {
+        name: "",
+        address: "",
+        long: 0,
+        lat: 0,
+        docUploads: [
+          {
+            url: "img.jpg",
+          },
+        ],
+        crops: [
+          {
+            cropId: "",
+            farmSeasonStart: "",
+            farmSeasonEnd: "",
+          },
+        ],
+      },
+    ],
   });
+
+  // Fetch data from localStorage when the component mounts
+  useEffect(() => {
+    const data = localStorage.getItem("formData");
+    let parsedFormData: any = {};
+    if (data) {
+      parsedFormData = JSON.parse(data);
+    }
+    setFormData(parsedFormData);
+
+    // Log the data to the console
+    console.log("Stored Data:", data);
+  }, []);
 
   const [fileName, setFileName] = useState("No file chosen");
 
-  const handleFileChange = (event: any) => {
+  console.log(fileName)
+
+  const handleFileChange = (event: any, index: number) => {
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
-      setFormData({ ...formData, image: file }); // Store the file in formData
+      setFormData((prevData) => {
+        const updatedFarmDetails = prevData.farmDetails.map(
+          (farmDetail, farmIndex) => {
+            if (farmIndex === index) {
+              const newDocUpload = { url: fileName };
+              farmDetail.docUploads = [...farmDetail.docUploads, newDocUpload];
+              return farmDetail;
+            }
+            return farmDetail;
+          }
+        );
+        return { ...prevData, farmDetails: updatedFarmDetails };
+      });
     } else {
       setFileName("No file chosen");
-      setFormData({ ...formData, image: null }); // Reset the image field if no file is chosen
+      setFormData((prevData) => {
+        const updatedFarmDetails = prevData.farmDetails.map(
+          (farmDetail, farmIndex) => {
+            if (farmIndex === index) {
+              farmDetail.docUploads = [
+                ...farmDetail.docUploads,
+                { url: "null" },
+              ];
+              return farmDetail;
+            }
+            return farmDetail;
+          }
+        );
+        return { ...prevData, farmDetails: updatedFarmDetails };
+      });
     }
   };
 
-  // add another crop
   const [cropAndMonths, setCropAndMonths] = useState([
-    { crop: "beans", start: "January", end: "December" },
+    {
+      cropId: "beans",
+      farmSeasonStart: "January",
+      farmSeasonEnd: "December",
+    },
   ]);
 
-  const [newCropData, setNewCropData] = useState([
-    { crop: "", start: "January", end: "December" },
-  ]);
-  const addData = (newCropData: any) => {
+  const handleAddCrop = () => {
     setCropAndMonths((prevCropAndMonths) => [
       ...prevCropAndMonths,
-      newCropData,
+      {
+        cropId: "",
+        farmSeasonStart: "January",
+        farmSeasonEnd: "December",
+      },
     ]);
+  };
+
+  const handleCropChange = (index: number, cropId: string) => {
+    setFormData((prevData: any) => {
+      const updatedFarmDetails = prevData?.farmDetails?.map(
+        (farmDetail: any, farmIndex: any) => {
+          if (farmIndex === index) {
+            const updatedCrops = [...farmDetail.crops, { name: cropId }];
+            return { ...farmDetail, crops: updatedCrops };
+          }
+          return farmDetail;
+        }
+      );
+      return { ...prevData, farmDetails: updatedFarmDetails };
+    });
+  };
+
+  const handleStartMonthChange = (index: number, startMonth: string) => {
+    setCropAndMonths((prevCropAndMonths) => {
+      const updatedCropAndMonths = [...prevCropAndMonths];
+      updatedCropAndMonths[index].farmSeasonStart = startMonth;
+      return updatedCropAndMonths;
+    });
+  };
+
+  const handleEndMonthChange = (index: number, endMonth: string) => {
+    setCropAndMonths((prevCropAndMonths) => {
+      const updatedCropAndMonths = [...prevCropAndMonths];
+      updatedCropAndMonths[index].farmSeasonEnd = endMonth;
+      return updatedCropAndMonths;
+    });
   };
 
   // validation state
@@ -64,19 +182,22 @@ const Page = () => {
 
   // validate form
   const validate = () => {
-    const { name, longtitude, latitude, crop, start_month, end_month } =
-      formData;
+    if (Array.isArray(formData.farmDetails)) {
+      formData.farmDetails.forEach((farmDetail) => {
+        const { name, long, lat, docUploads, crops } = farmDetail;
+        // do something with the variables
+        name.length > 0 &&
+        long.toString.length > 0 &&
+        lat.toString.length > 0 &&
+        crops.length > 0
+          ? setValidationState(true)
+          : setValidationState(false);
 
-    name.length > 0 &&
-    longtitude.length > 0 &&
-    latitude.length > 0 &&
-    crop.length > 0 &&
-    start_month.length > 0 &&
-    end_month.length > 0
-      ? setValidationState(true)
-      : setValidationState(false);
-
-    console.log(validationState);
+        console.log(validationState);
+      });
+    } else {
+      console.error("formData.farmDetails is not an array");
+    }
   };
 
   // Run validation on formData change
@@ -86,12 +207,67 @@ const Page = () => {
 
   // update form data state
   const handleChange = (event: any) => {
-    const { name, value } = event?.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    const { name, value } = event.target;
+
+    let newValue;
+
+    if (value === "true") {
+      newValue = true;
+    } else if (value === "false") {
+      newValue = false;
+    } else {
+      newValue = value;
+    }
+
+    if (
+      name === "name" ||
+      name === "address" ||
+      name === "long" ||
+      name === "lat" ||
+      name === "docUploads" ||
+      name === "crops"
+    ) {
+      setFormData((prevData) => {
+        const updatedFarmDetails = prevData?.farmDetails?.map((farmDetail) => {
+          return { ...farmDetail, [name]: newValue };
+        });
+        return { ...prevData, farmDetails: updatedFarmDetails };
+      });
+    }
+    if (name === "crops") {
+      setFormData((prevFormData) => {
+        const updatedFarmDetails = prevFormData.farmDetails.map(
+          (farmDetail) => {
+            return {
+              ...farmDetail,
+              crops: cropAndMonths,
+            };
+          }
+        );
+        return { ...prevFormData, farmDetails: updatedFarmDetails };
+      });
+      // } else {
+      //   setFormData((prevData) => ({
+      //     ...prevData,
+      //     [name]: newValue,
+      //   }));
+    }
   };
+
+  // funtion to submit form Data
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    try {
+      const farmer = await authenticateFarmer(formData);
+      console.log("Farmer authenticated:", farmer);
+    } catch (error) {
+      console.log("Error during form submission:", error);
+    }
+    // localStorage.setItem("formData", "");
+  };
+
+  console.log(formData);
+  console.log("cropAndMonths", cropAndMonths);
 
   // dropzone
   const onDrop = useCallback((acceptedFiles: any) => {
@@ -153,12 +329,15 @@ const Page = () => {
                 <div className="w-1/2">
                   <label htmlFor="farm_coordinates" className="flex pt-2">
                     Farm Coordinates
-                    <span className="italic hidden sm:block"> {"(optional)"}</span>
+                    <span className="italic hidden sm:block">
+                      {" "}
+                      {"(optional)"}
+                    </span>
                   </label>
                   {/* longtitude*/}
                   <input
                     type="text"
-                    name="longtitude"
+                    name="long"
                     onChange={handleChange}
                     placeholder="Longtitude"
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -166,14 +345,14 @@ const Page = () => {
                 </div>
                 {/* latitude */}
                 <div className="w-1/2">
-                  <label htmlFor="latitude" className="flex pt-2 invisible">
+                  <label htmlFor="lat" className="flex pt-2 invisible">
                     Latitude*
                   </label>
 
                   <input
                     type="text"
                     placeholder="Latitude"
-                    name="latitude"
+                    name="lat"
                     onChange={handleChange}
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
                   />
@@ -198,12 +377,26 @@ const Page = () => {
                   </label>
                   {/* Crop cultivated on the farm */}
                   <Select
-                    onValueChange={(value) =>
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        crop: value,
-                      }))
-                    }
+                    onValueChange={(value) => {
+                      setFormData((prevData) => {
+                        const updatedFarmDetails = [...prevData.farmDetails];
+                        const farmDetail = updatedFarmDetails[index];
+                        if (!farmDetail?.crops) {
+                          farmDetail.crops = [];
+                        }
+                        const lastCropIndex = farmDetail.crops.length - 1;
+                        if (lastCropIndex === -1) {
+                          farmDetail.crops.push({
+                            cropId: value,
+                            farmSeasonStart: "",
+                            farmSeasonEnd: "",
+                          });
+                        } else {
+                          farmDetail.crops[lastCropIndex].cropId = value;
+                        }
+                        return { ...prevData, farmDetails: updatedFarmDetails };
+                      });
+                    }}
                   >
                     <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                       <SelectValue placeholder="select crop" />
@@ -219,54 +412,75 @@ const Page = () => {
                   <div className="grid grid-cols-2 gap-4">
                     {/* start month */}
                     <div>
-                      <label htmlFor="start_month" className="mt-4 flex ml-1">
+                      <label
+                        htmlFor="farmSeasonStart"
+                        className="mt-4 flex ml-1"
+                      >
                         start month
                       </label>
                       {/* Start month form */}
                       <Select
-                        onValueChange={(value) =>
-                          setFormData((prevData) => ({
-                            ...prevData,
-                            start_month: value,
-                          }))
-                        }
+                        onValueChange={(value) => {
+                          setFormData((prevData) => {
+                            const updatedFarmDetails = [
+                              ...prevData.farmDetails,
+                            ];
+                            const farmDetail = updatedFarmDetails[index];
+                            const lastCropIndex = farmDetail.crops.length - 1;
+                            farmDetail.crops[lastCropIndex].farmSeasonStart =
+                              value;
+                            return {
+                              ...prevData,
+                              farmDetails: updatedFarmDetails,
+                            };
+                          });
+                        }}
                       >
                         <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                           <SelectValue placeholder="MM" />
                         </SelectTrigger>
                         <SelectContent className="font-custom">
-                          <SelectItem value="NIN">January</SelectItem>
-                          <SelectItem value="voters card">February</SelectItem>
-                          <SelectItem value="passport">March</SelectItem>
-                          <SelectItem value="passport">April</SelectItem>
-                          <SelectItem value="passport">May</SelectItem>
+                          <SelectItem value="January">January</SelectItem>
+                          <SelectItem value="February">February</SelectItem>
+                          <SelectItem value="March">March</SelectItem>
+                          <SelectItem value="April">April</SelectItem>
+                          <SelectItem value="May">May</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     {/* end month */}
                     <div>
-                      <label htmlFor="start_month" className="mt-4 flex ml-1">
+                      <label htmlFor="farmSeasonEnd" className="mt-4 flex ml-1">
                         end month{" "}
                       </label>
                       {/* end month form */}
                       <Select
-                        onValueChange={(value) =>
-                          setFormData((prevData) => ({
-                            ...prevData,
-                            end_month: value,
-                          }))
-                        }
+                        onValueChange={(value) => {
+                          setFormData((prevData) => {
+                            const updatedFarmDetails = [
+                              ...prevData.farmDetails,
+                            ];
+                            const farmDetail = updatedFarmDetails[index];
+                            const lastCropIndex = farmDetail.crops.length - 1;
+                            farmDetail.crops[lastCropIndex].farmSeasonEnd =
+                              value;
+                            return {
+                              ...prevData,
+                              farmDetails: updatedFarmDetails,
+                            };
+                          });
+                        }}
                       >
                         <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                           <SelectValue placeholder="MM" />
                         </SelectTrigger>
                         <SelectContent className="font-custom">
-                          <SelectItem value="NIN">January</SelectItem>
-                          <SelectItem value="voters card">February</SelectItem>
-                          <SelectItem value="passport">March</SelectItem>
-                          <SelectItem value="passport">April</SelectItem>
-                          <SelectItem value="passport">May</SelectItem>
+                          <SelectItem value="January">January</SelectItem>
+                          <SelectItem value="February">February</SelectItem>
+                          <SelectItem value="March">March</SelectItem>
+                          <SelectItem value="April">April</SelectItem>
+                          <SelectItem value="May">May</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -276,14 +490,14 @@ const Page = () => {
 
               {/* add another crop */}
               <button
-                onClick={addData}
+                onClick={handleAddCrop}
                 className="px-4 py-1 bg-[#E7F5F1] rounded-xl border-2 text-[#0A6C52] border-[#90D0BF] flex items-center gap-1 text-sm mt-4"
               >
                 <LuPlus className="text-base" /> Add another crop
               </button>
 
               {/*  */}
-              <label htmlFor="start_month" className="mt-4 flex ml-1">
+              <label htmlFor="drop" className="mt-4 flex ml-1">
                 Upload farm documents
               </label>
               {/* drag and drop file */}
@@ -317,7 +531,10 @@ const Page = () => {
                     Add Farm
                   </button>
                 ) : (
-                  <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF]">
+                  <button
+                    onClick={handleSubmit}
+                    className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF]"
+                  >
                     Add Farm
                   </button>
                 )}

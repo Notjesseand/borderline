@@ -7,7 +7,7 @@ import { GrStatusGood } from "react-icons/gr";
 import { LuUpload } from "react-icons/lu";
 import Link from "next/link";
 import axios from "axios";
-import { authenticateFarmer}  from "@/api/farmerAuth";
+import { authenticateFarmer } from "@/api/farmerAuth";
 import {
   Select,
   SelectContent,
@@ -15,29 +15,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+  const [error, setError] = useState("");
   // all form data
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    credential: "",
-    email: "",
-    ageGroup: 18,
-    gender: "",
-    resAddress: "",
-    site: "",
-    id_type: "",
-    id_number: 0,
-    document: "",
-    password: "",
-    image: null,
-    confirmPassword: "",
+    userDetails: {
+      firstName: "",
+      lastName: "",
+      credential: "",
+      email: "",
+      password: "",
+      roleName: "farmer",
+      gender: "",
+      resAddress: "",
+      ageGroup: "",
+      hasBankAccount: false,
+      hasSmartphone: true,
+      profilePic: {
+        url: "img.jpg",
+      },
+    },
+    siteId: "",
+    idUpload: {
+      idType: "",
+      idNumber: "",
+      url: "",
+    },
+    bankDetails: {}, // optional, only send if hasBankAccount is true
+    farmDetails: [
+      {
+        name: "",
+        address: "",
+        long: 0,
+        lat: 0,
+        docUploads: [
+          {
+            url: "img.jpg",
+          },
+        ],
+        crops: [
+          {
+            cropId: "",
+            farmSeasonStart: "",
+            farmSeasonEnd: "",
+          },
+        ],
+      },
+    ],
   });
-
-  const dataArray = {formData}
-
-  const data = {formData}
 
   const [fileName, setFileName] = useState("No file chosen");
 
@@ -45,21 +72,26 @@ const Page = () => {
     const file = event.target.files[0];
     if (file) {
       setFileName(file.name);
-      setFormData({ ...formData, image: file }); // Store the file in formData
+      setFormData({
+        ...formData,
+        userDetails: { ...formData.userDetails, profilePic: { url: fileName } },
+      }); // Store the file in formData
     } else {
       setFileName("No file chosen");
-      setFormData({ ...formData, image: null }); // Reset the image field if no file is chosen
+      setFormData({
+        ...formData,
+        userDetails: { ...formData.userDetails, profilePic: { url: "null" } },
+      }); // Reset the image field if no file is chosen
     }
   };
-
-  // Error state
-  const [error, setError] = useState("");
 
   // Regular expression to check if there's at least one special character
   const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
 
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const validatePassword = () => {
-    const { password, confirmPassword } = formData;
+    const { password } = formData.userDetails;
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters long.");
@@ -73,12 +105,11 @@ const Page = () => {
   };
 
   // validate all form fields
-
   const [validationState, setValidationState] = useState(false);
 
   // validate form
   const validate = () => {
-    const { firstName, lastName, password, confirmPassword } = formData;
+    const { firstName, lastName, password } = formData.userDetails;
 
     const isValid =
       firstName.length > 0 &&
@@ -96,25 +127,81 @@ const Page = () => {
   }, [formData]);
 
   // update form data state
+  // const handleChange = (event: any) => {
+  //   const { name, value } = event?.target;
+  //   if (name === "siteId") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       siteId: value,
+  //     }));
+  //   } else if (name === "idNumber") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       idUpload: { ...prevData.idUpload, idNumber: value },
+  //     }));
+  //   } else {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       userDetails: {
+  //         ...prevData.userDetails,
+  //         [name]: value,
+  //       },
+  //     }));
+  //   }
+  // };
+
   const handleChange = (event: any) => {
     const { name, value } = event?.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  // Handle submit function
-  const handleSubmit = async (e:any) => {
-    e.preventDefault();
-    try {
-      const farmer = await authenticateFarmer(formData);
-      console.log("Farmer authenticated:", farmer);
-    } catch (error) {
-      console.log("Error during form submission:", error);
+    if (name === "siteId") {
+      setFormData((prevData) => ({
+        ...prevData,
+        siteId: value,
+      }));
+    } else if (name === "idNumber") {
+      setFormData((prevData) => ({
+        ...prevData,
+        idUpload: { ...prevData.idUpload, idNumber: value },
+      }));
+    } else if (name === "resAddress") {
+      setFormData((prevData) => ({
+        ...prevData,
+        userDetails: { ...prevData.userDetails, [name]: value },
+        farmDetails: [{ ...prevData.farmDetails[0], address: value }],
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        userDetails: {
+          ...prevData.userDetails,
+          [name]: value,
+        },
+      }));
     }
   };
 
+  // set formData to storage to enable access in other form pages
+  const router = useRouter();
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setTimeout(() => {
+      router.push("/bank");
+    }, 2000);
+    localStorage.setItem("formData", JSON.stringify(formData));
+  };
+
+  // funtion to submit form Data
+  // set formData to storage to enable access in other form pages
+  // const handleSubmit = async (e: any) => {
+  //   e.preventDefault();
+  //   // try {
+  //   //   const farmer = await authenticateFarmer(formData);
+  //   //   console.log("Farmer authenticated:", farmer);
+  //   // } catch (error) {
+  //   //   console.log("Error during form submission:", error);
+  //   // }
+
+  //   localStorage.setItem("formData", JSON.stringify(formData));
+  // };
 
   return (
     <div className="font-poppins text-base pb-12">
@@ -253,7 +340,7 @@ const Page = () => {
                       id="male"
                       className="m-1"
                       onChange={handleChange}
-                      checked={formData.gender === "male"}
+                      checked={formData.userDetails.gender === "male"}
                     />
                     <label htmlFor="male">Male</label>
 
@@ -265,7 +352,7 @@ const Page = () => {
                       id="female"
                       className="m-1 ml-3"
                       onChange={handleChange}
-                      checked={formData.gender === "female"}
+                      checked={formData.userDetails.gender === "female"}
                     />
                     <label htmlFor="female">Female</label>
                   </div>
@@ -291,7 +378,7 @@ const Page = () => {
                 </label>
                 <input
                   type="text"
-                  name="site"
+                  name="siteId"
                   onChange={handleChange}
                   placeholder="Select site"
                   className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -303,7 +390,7 @@ const Page = () => {
               </label>
               <Select
                 onValueChange={(value) =>
-                  setFormData((prevData) => ({ ...prevData, id_type: value }))
+                  setFormData((prevData) => ({ ...prevData, idUpload: {...prevData.idUpload, idType: value} }))
                 }
               >
                 <SelectTrigger className="w-full outline-none ring-0">
@@ -323,7 +410,7 @@ const Page = () => {
               </label>
               <input
                 type="number"
-                name="id_number"
+                name="idNumber"
                 onChange={handleChange}
                 placeholder="Enter your ID number"
                 className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
@@ -359,7 +446,7 @@ const Page = () => {
               <input
                 type="password"
                 name="password"
-                value={formData.password}
+                value={formData.userDetails.password}
                 onChange={handleChange}
                 className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
               />
@@ -367,14 +454,14 @@ const Page = () => {
               <label htmlFor="confirm_password" className="flex pt-3">
                 Confirm password
               </label>
-              <input
+              {/* <input
                 type="password"
                 name="confirmPassword"
                 onChange={handleChange}
-                value={formData.confirmPassword}
+                value={confirmPassword}
                 className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-              />
-              {error && formData.confirmPassword.length > 0 && (
+              /> */}
+              {error && confirmPassword.length > 0 && (
                 <p className="text-red-500">{error}</p>
               )}
               {/* password length check */}
@@ -382,9 +469,9 @@ const Page = () => {
                 className="text-sm font-montserrat mt-2 flex items-center gap-2 text-slate-500"
                 style={{
                   color:
-                    formData.password.length === 0
+                    formData.userDetails.password.length === 0
                       ? ""
-                      : formData.password.length < 8
+                      : formData.userDetails.password.length < 8
                       ? "red"
                       : "green",
                 }}
@@ -397,9 +484,9 @@ const Page = () => {
                 className="text-sm font-montserrat mt-2 flex items-center gap-2 text-slate-500"
                 style={{
                   color:
-                    formData.password.length === 0
+                    formData.userDetails.password.length === 0
                       ? ""
-                      : specialCharRegex.test(formData.password)
+                      : specialCharRegex.test(formData.userDetails.password)
                       ? "green"
                       : "red",
                 }}
@@ -417,7 +504,7 @@ const Page = () => {
                 </div>
                 <div className="flex items-center space-x-4 mt-4">
                   <div className="p-1 bg-slate-100 justify-center rounded-full aspect-square items-center h-11 flex border border-slate-300">
-                    {formData?.image ? (
+                    {formData?.userDetails.profilePic.url ? (
                       <img
                         // @ts-ignore
                         src={formData?.image?.name}
@@ -449,7 +536,7 @@ const Page = () => {
                 <p className="mt-2 text-slate-500">PNG or JPG {"(max. 5MB)"}</p>
                 {/* {formData.image} */}
                 {/* @ts-ignore */}
-                {formData?.image?.name}
+                {formData.userDetails.image?.name}
               </div>
               {/* back / submit */}
               <div className="mt-12 gap-x-4 flex">
