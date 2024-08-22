@@ -133,9 +133,10 @@ const Page = () => {
     const { firstName, lastName, password } = formData.userDetails;
 
     const isValid =
-      firstName.length > 0 && lastName.length > 0 && password.length > 0;
-    //  &&
-    // confirmPassword.length > 0;
+      firstName.length > 0 &&
+      lastName.length > 0 &&
+      password.length > 0 &&
+      confirmPassword.length > 0;
 
     setValidationState(isValid);
   };
@@ -540,7 +541,7 @@ const Page = () => {
                         size="40"
                         stroke="3"
                         speed="1"
-                        color="black"
+                        color="white"
                       ></l-line-spinner>
                     ) : (
                       "Continue"
