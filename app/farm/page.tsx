@@ -187,33 +187,33 @@ const Page = () => {
   const [validationState, setValidationState] = useState(false);
 
   // validate form
- const validate = () => {
-   if (Array.isArray(formData.farmDetails)) {
-     let isValid = true;
-     formData.farmDetails.forEach((farmDetail) => {
-       const { name, long, lat, crops } = farmDetail;
+  const validate = () => {
+    if (Array.isArray(formData.farmDetails)) {
+      let isValid = true;
+      formData.farmDetails.forEach((farmDetail) => {
+        const { name, long, lat, crops } = farmDetail;
 
-       console.log("jaja", name, lat, long, crops);
+        console.log("jaja", name, lat, long, crops);
 
-       if (
-         !name ||
-         !long ||
-         !lat ||
-         !crops ||
-         name.length === 0 ||
-         long.toString().length === 0 ||
-         lat.toString().length === 0 ||
-         crops.toString().length === 0
-       ) {
-         isValid = false;
-       }
-     });
+        if (
+          !name ||
+          !long ||
+          !lat ||
+          !crops ||
+          name.length === 0 ||
+          long.toString().length === 0 ||
+          lat.toString().length === 0 ||
+          crops.toString().length === 0
+        ) {
+          isValid = false;
+        }
+      });
 
-     setValidationState(isValid);
-   } else {
-     console.error("formData.farmDetails is not an array");
-   }
- };
+      setValidationState(isValid);
+    } else {
+      console.error("formData.farmDetails is not an array");
+    }
+  };
 
   // Run validation on formData change
   useEffect(() => {
@@ -280,8 +280,9 @@ const Page = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     toggle();
+    localStorage.removeItem("formData");
     try {
-      console.log("FormData:", formData); // Add this line
+      console.log("FormData:", formData);
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
     } catch (error) {
