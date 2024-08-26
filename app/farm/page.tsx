@@ -11,13 +11,6 @@ import { LuUploadCloud } from "react-icons/lu";
 import { authenticateFarmer } from "@/api/farmerAuth";
 import { lineSpinner } from "ldrs";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
-
 import Link from "next/link";
 import {
   Select,
@@ -628,12 +621,7 @@ const Page = () => {
           </div>
         </section>
       </div>
-      {isAuthenticated && (
-        <Popover>
-          <PopoverTrigger>Open</PopoverTrigger>
-          <PopoverContent>Place content for the popover here.</PopoverContent>
-        </Popover>
-      )}
+      
     </div>
   );
 };
