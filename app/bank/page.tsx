@@ -82,9 +82,6 @@ const Page = () => {
       parsedFormData = JSON.parse(data);
     }
     setFormData(parsedFormData);
-
-    // Log the data to the console
-    console.log("Stored Data:", data);
   }, []);
 
   const handleChange = (event: any) => {
@@ -135,8 +132,6 @@ const Page = () => {
   const setBankFalse = () => {
     setBank(false);
   };
-
-  console.log("bank", bank);
 
   // set formData to storage to enable access in other form pages
   const router = useRouter();

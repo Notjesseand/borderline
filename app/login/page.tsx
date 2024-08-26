@@ -141,8 +141,16 @@ const Page = () => {
                   onClick={handleSubmit}
                   className=" bg-[#0E9874]  w-full mt-14 rounded-lg py-3 text-white text-lg"
                 >
-                  {loading ? "" : "Login"}
-                  
+                  {loading ? (
+                    <l-line-spinner
+                      size="21"
+                      stroke="3"
+                      speed="1"
+                      color="white"
+                    ></l-line-spinner>
+                  ) : (
+                    "Login"
+                  )}
                 </button>
               ) : (
                 <button className=" bg-[#90D0BF]  w-full mt-14 rounded-lg py-3 text-white text-lg">

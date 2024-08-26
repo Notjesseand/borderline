@@ -121,7 +121,6 @@ const Page = () => {
 
     // Directly compare the new value with the password
     if (value === password) {
-      console.log("matching passwords");
       setMatch(true);
     } else {
       setMatch(false);
@@ -234,17 +233,8 @@ const Page = () => {
     "85 - 100",
   ];
 
-  const matchPasswords = () => {
-    const { password } = formData.userDetails;
-
-    if (password === confirmPassword) {
-      console.log("match");
-    }
-  };
-
   useEffect(() => {
     getSites();
-    matchPasswords();
   }, []);
 
   // set formData to storage to enable access in other form pages
@@ -329,7 +319,7 @@ const Page = () => {
                 <div className="w-1/6 mr-5">
                   {/* country code */}
                   <Select>
-                    <SelectTrigger className="w-[80px] outline-none ring-0">
+                    <SelectTrigger className="w-[80px] outline-none ring-0 focus:outline-none focus:ring-0 focus:border-transparent focus:border-0">
                       <SelectValue placeholder="+234" />
                     </SelectTrigger>
                     <SelectContent>
@@ -390,10 +380,10 @@ const Page = () => {
                       }))
                     }
                   >
-                    <SelectTrigger className="w-full outline-none ring-0">
+                    <SelectTrigger className="w-full outline-none ring-0 focus:outline-none focus:ring-0 focus:border-transparent focus:border-0">
                       <SelectValue placeholder="Choose Age" />
                     </SelectTrigger>
-                    <SelectContent className="font-custom">
+                    <SelectContent className="font-custom outline-none ring-0 focus:outline-none focus:ring-0 ">
                       {ageGroup.map((age, index) => (
                         <SelectItem key={index} value={age}>
                           {age}
@@ -461,7 +451,7 @@ const Page = () => {
                   }))
                 }
               >
-                <SelectTrigger className="w-full outline-none ring-0">
+                <SelectTrigger className="w-full outline-none ring-0 focus:outline-none focus:ring-0 focus:border-transparent focus:border-0">
                   <SelectValue placeholder="select Site" />
                 </SelectTrigger>
                 <SelectContent className="font-custom">
@@ -485,7 +475,7 @@ const Page = () => {
                   }))
                 }
               >
-                <SelectTrigger className="w-full outline-none ring-0">
+                <SelectTrigger className="w-full outline-none ring-0 focus:outline-none focus:ring-0 focus:border-transparent focus:border-0">
                   <SelectValue placeholder="select ID type" />
                 </SelectTrigger>
                 <SelectContent className="font-custom">
@@ -550,7 +540,6 @@ const Page = () => {
                 type="password"
                 name="confirmPassword"
                 onChange={(e) => {
-                  matchPasswords();
                   handleConfirmPasswordChange(e);
                 }}
                 value={confirmPassword}

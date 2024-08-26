@@ -88,14 +88,10 @@ const Page = () => {
       parsedFormData = JSON.parse(data);
     }
     setFormData(parsedFormData);
-
-    // Log the data to the console
-    console.log("Stored Data:", data);
   }, []);
 
   const [fileName, setFileName] = useState("No file chosen");
 
-  console.log(fileName);
 
   const handleFileChange = (event: any, index: number) => {
     const file = event.target.files[0];
@@ -187,7 +183,6 @@ const Page = () => {
   // validation state
   const [validationState, setValidationState] = useState(false);
 
-  console.log(formData.farmDetails[0]);
 
   // validate form
   const validate = () => {
@@ -196,7 +191,6 @@ const Page = () => {
       formData.farmDetails.forEach((farmDetail) => {
         const { name, long, lat, crops } = farmDetail;
 
-        console.log("jaja", name, lat, long, crops);
 
         if (
           !name ||
@@ -298,8 +292,6 @@ const Page = () => {
     setCropId(data.data.crops);
   };
 
-  console.log("cropId", cropId);
-
   useEffect(() => {
     getCrops();
   }, []);
@@ -320,7 +312,6 @@ const Page = () => {
     // localStorage.removeItem("formData");
     localStorage.setItem("formData", JSON.stringify(formData));
     try {
-      console.log("FormData:", formData);
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
 
