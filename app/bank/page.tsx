@@ -169,7 +169,7 @@ const Page = () => {
             </p>
             <p>
               Already have an account?
-              <Link href={""} className="text-[#0A6C52]">
+              <Link href={"/login"} className="text-[#0A6C52]">
                 {" "}
                 Log in
               </Link>

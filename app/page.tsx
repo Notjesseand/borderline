@@ -111,12 +111,21 @@ const Page = () => {
 
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [match, setMatch] = useState(false);
+
   const handleConfirmPasswordChange = (event: any) => {
-    const { name, value } = event.target;
-    setConfirmPassword(value);
-    console.log(confirmPassword);
-    validate();
-    validatePassword();
+    const { value } = event.target; // We don't need the 'name' variable
+    const { password } = formData.userDetails;
+
+    setConfirmPassword(value); // Update the state with the new confirmPassword value
+
+    // Directly compare the new value with the password
+    if (value === password) {
+      console.log("matching passwords");
+      setMatch(true);
+    } else {
+      setMatch(false);
+    }
   };
 
   const validatePassword = () => {
@@ -126,9 +135,11 @@ const Page = () => {
       setError("Password must be at least 8 characters long.");
     } else if (!specialCharRegex.test(password)) {
       setError("Password must contain at least one special character.");
-    } else if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-    } else {
+    }
+    //  else if (password !== confirmPassword) {
+    //   setError("Passwords do not match.");
+    // }
+    else {
       setError("");
     }
   };
@@ -212,10 +223,6 @@ const Page = () => {
     setSites(data?.data?.sites);
   };
 
-  useEffect(() => {
-    getSites();
-  }, []);
-
   const ageGroup = [
     "18 - 25",
     "26 - 35",
@@ -226,6 +233,19 @@ const Page = () => {
     "76 - 85",
     "85 - 100",
   ];
+
+  const matchPasswords = () => {
+    const { password } = formData.userDetails;
+
+    if (password === confirmPassword) {
+      console.log("match");
+    }
+  };
+
+  useEffect(() => {
+    getSites();
+    matchPasswords();
+  }, []);
 
   // set formData to storage to enable access in other form pages
   const router = useRouter();
@@ -258,7 +278,7 @@ const Page = () => {
             </p>
             <p>
               Already have an account?
-              <Link href={""} className="text-[#0A6C52]">
+              <Link href={"/login"} className="text-[#0A6C52]">
                 {" "}
                 Log in
               </Link>
@@ -445,11 +465,12 @@ const Page = () => {
                   <SelectValue placeholder="select Site" />
                 </SelectTrigger>
                 <SelectContent className="font-custom">
-                  {sites.map((site: Sites, index: number) => (
-                    <SelectItem key={index} value={site._id}>
-                      {site.communityName}
-                    </SelectItem>
-                  ))}
+                  {sites &&
+                    sites.map((site: Sites, index: number) => (
+                      <SelectItem key={index} value={site._id}>
+                        {site.communityName}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
               {/* ID type */}
@@ -528,12 +549,20 @@ const Page = () => {
               <input
                 type="password"
                 name="confirmPassword"
-                onChange={handleConfirmPasswordChange}
+                onChange={(e) => {
+                  matchPasswords();
+                  handleConfirmPasswordChange(e);
+                }}
                 value={confirmPassword}
                 className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
               />
               {error && confirmPassword.length > 0 && (
                 <p className="text-red-500">{error}</p>
+              )}
+              {confirmPassword.length > 1 && match !== true ? (
+                <p className="text-red-500">Passwords do not match</p>
+              ) : (
+                ""
               )}
               {/* password length check */}
               <p

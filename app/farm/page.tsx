@@ -10,6 +10,13 @@ import { LuPlus } from "react-icons/lu";
 import { LuUploadCloud } from "react-icons/lu";
 import { authenticateFarmer } from "@/api/farmerAuth";
 import { lineSpinner } from "ldrs";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 
 import Link from "next/link";
 import {
@@ -309,6 +316,10 @@ const Page = () => {
   const toggle = () => {
     setLoading(true);
   };
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+
   // funtion to submit form Data
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -319,6 +330,11 @@ const Page = () => {
       console.log("FormData:", formData);
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
+
+      setLoading(false)
+      setIsAuthenticated(true);
+      // show popover when the user is authenticated
+    
     } catch (error) {
       console.log("Error during form submission:", error);
     }
@@ -348,7 +364,7 @@ const Page = () => {
             </p>
             <p>
               Already have an account?
-              <Link href={""} className="text-[#0A6C52]">
+              <Link href={"/login"} className="text-[#0A6C52]">
                 {" "}
                 Log in
               </Link>
@@ -612,6 +628,12 @@ const Page = () => {
           </div>
         </section>
       </div>
+      {isAuthenticated && (
+        <Popover>
+          <PopoverTrigger>Open</PopoverTrigger>
+          <PopoverContent>Place content for the popover here.</PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 };
