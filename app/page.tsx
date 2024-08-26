@@ -9,6 +9,7 @@ import Link from "next/link";
 import { lineSpinner } from "ldrs";
 import axios from "axios";
 import { authenticateFarmer } from "@/api/farmerAuth";
+import { getAllSites } from "@/api/getSites";
 import {
   Select,
   SelectContent,
@@ -39,7 +40,7 @@ const Page = () => {
       hasBankAccount: false,
       hasSmartphone: true,
       profilePic: {
-        url: "img.jpg",
+        url: "https://img.jpg",
       },
     },
     siteId: "",
@@ -57,7 +58,7 @@ const Page = () => {
         lat: 0,
         docUploads: [
           {
-            url: "img.jpg",
+            url: "https://img.jpg",
           },
         ],
         crops: [
@@ -70,6 +71,15 @@ const Page = () => {
       },
     ],
   });
+
+  // adding site data
+  //  adding the site to the variable
+  const [site, setSite] = useState("");
+  // onchange
+  const handleSiteChange = (e: any) => {
+    setSite(e.target.value);
+  };
+  const handleAddSite = () => {};
 
   const [fileName, setFileName] = useState("No file chosen");
 
@@ -105,6 +115,8 @@ const Page = () => {
     const { name, value } = event.target;
     setConfirmPassword(value);
     console.log(confirmPassword);
+    validate();
+    validatePassword();
   };
 
   const validatePassword = () => {
@@ -176,6 +188,45 @@ const Page = () => {
     }
   };
 
+  interface Sites {
+    _id: string;
+    communityName: string;
+  }
+
+  // fetching sites from the endpoint
+  const [sites, setSites] = useState<Sites[]>([]);
+  const getAllSites = async () => {
+    try {
+      const response = await axios.get(
+        "https://www.dev.farmwarehouse.ng/api/sites"
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  const getSites = async () => {
+    const data = await getAllSites();
+    setSites(data?.data?.sites);
+  };
+
+  useEffect(() => {
+    getSites();
+  }, []);
+
+  const ageGroup = [
+    "18 - 25",
+    "26 - 35",
+    "36 - 45",
+    "46 - 55",
+    "56 - 65",
+    "66 - 75",
+    "76 - 85",
+    "85 - 100",
+  ];
+
   // set formData to storage to enable access in other form pages
   const router = useRouter();
   const handleSubmit = async (e: any) => {
@@ -188,7 +239,7 @@ const Page = () => {
   };
 
   return (
-    <div className="font-poppins text-base pb-12">
+    <div className="text-base pb-12">
       <div className="grid lg:grid-cols-2 relative">
         {/* banner */}
 
@@ -301,13 +352,35 @@ const Page = () => {
                   <label htmlFor="ageGroup" className="flex pt-3">
                     Age*
                   </label>
-                  <input
+                  {/* <input
                     type="number"
                     name="ageGroup"
                     onChange={handleChange}
                     placeholder="Enter age"
                     className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-                  />
+                  /> */}
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        userDetails: {
+                          ...prevData.userDetails,
+                          ageGroup: value,
+                        },
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full outline-none ring-0">
+                      <SelectValue placeholder="Choose Age" />
+                    </SelectTrigger>
+                    <SelectContent className="font-custom">
+                      {ageGroup.map((age, index) => (
+                        <SelectItem key={index} value={age}>
+                          {age}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* gender */}
@@ -321,11 +394,11 @@ const Page = () => {
                     <input
                       type="radio"
                       name="gender"
-                      value="male"
-                      id="male"
+                      value="Male"
+                      id="Male"
                       className="m-1"
                       onChange={handleChange}
-                      checked={formData.userDetails.gender === "male"}
+                      checked={formData.userDetails.gender === "Male"}
                     />
                     <label htmlFor="male">Male</label>
 
@@ -333,11 +406,11 @@ const Page = () => {
                     <input
                       type="radio"
                       name="gender"
-                      value="female"
-                      id="female"
+                      value="Female"
+                      id="Female"
                       className="m-1 ml-3"
                       onChange={handleChange}
-                      checked={formData.userDetails.gender === "female"}
+                      checked={formData.userDetails.gender === "Female"}
                     />
                     <label htmlFor="female">Female</label>
                   </div>
@@ -357,18 +430,28 @@ const Page = () => {
                 />
               </div>
               {/* site */}
-              <div className="w-full">
-                <label htmlFor="site" className="flex pt-3">
-                  Site*
-                </label>
-                <input
-                  type="text"
-                  name="siteId"
-                  onChange={handleChange}
-                  placeholder="Select site"
-                  className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-                />
-              </div>
+              <label htmlFor="site" className="flex pt-3">
+                Site*
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setFormData((prevData) => ({
+                    ...prevData,
+                    siteId: value,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full outline-none ring-0">
+                  <SelectValue placeholder="select Site" />
+                </SelectTrigger>
+                <SelectContent className="font-custom">
+                  {sites.map((site: Sites, index: number) => (
+                    <SelectItem key={index} value={site._id}>
+                      {site.communityName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {/* ID type */}
               <label htmlFor="ID type" className="flex pt-3">
                 ID Type*
@@ -454,7 +537,7 @@ const Page = () => {
               )}
               {/* password length check */}
               <p
-                className="text-sm font-montserrat mt-2 flex items-center gap-2 text-slate-500"
+                className="text-sm mt-2 flex items-center gap-2 text-slate-500"
                 style={{
                   color:
                     formData.userDetails.password.length === 0
@@ -469,7 +552,7 @@ const Page = () => {
               </p>
               {/* password special char check */}
               <p
-                className="text-sm font-montserrat mt-2 flex items-center gap-2 text-slate-500"
+                className="text-sm mt-2 flex items-center gap-2 text-slate-500"
                 style={{
                   color:
                     formData.userDetails.password.length === 0
@@ -538,7 +621,7 @@ const Page = () => {
                   >
                     {loading ? (
                       <l-line-spinner
-                        size="40"
+                        size="21"
                         stroke="3"
                         speed="1"
                         color="white"

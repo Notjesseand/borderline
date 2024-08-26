@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import axios from "axios";
 
 const Page = () => {
   if (typeof window !== "undefined") {
@@ -146,8 +147,8 @@ const Page = () => {
       ...prevCropAndMonths,
       {
         cropId: "",
-        farmSeasonStart: "January",
-        farmSeasonEnd: "December",
+        farmSeasonStart: "",
+        farmSeasonEnd: "",
       },
     ]);
   };
@@ -185,6 +186,8 @@ const Page = () => {
 
   // validation state
   const [validationState, setValidationState] = useState(false);
+
+  console.log(formData.farmDetails[0]);
 
   // validate form
   const validate = () => {
@@ -271,6 +274,36 @@ const Page = () => {
     }
   };
 
+  interface Crops {
+    _id: string;
+    name: string;
+  }
+
+  // fetching crop IDs from the endpoint
+  const [cropId, setCropId] = useState<Crops[]>([]);
+  const getAllCrops = async () => {
+    try {
+      const response = await axios.get(
+        "https://www.dev.farmwarehouse.ng/api/crops"
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  const getCrops = async () => {
+    const data = await getAllCrops();
+    setCropId(data.data.crops);
+  };
+
+  console.log("cropId", cropId);
+
+  useEffect(() => {
+    getCrops();
+  }, []);
+
   const [loading, setLoading] = useState(false);
 
   const toggle = () => {
@@ -280,7 +313,8 @@ const Page = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     toggle();
-    localStorage.removeItem("formData");
+    // localStorage.removeItem("formData");
+    localStorage.setItem("formData", JSON.stringify(formData));
     try {
       console.log("FormData:", formData);
       const farmer = await authenticateFarmer(formData);
@@ -290,15 +324,12 @@ const Page = () => {
     }
   };
 
-  console.log(formData);
-  console.log("cropAndMonths", cropAndMonths);
-
   // dropzone
   const onDrop = useCallback((acceptedFiles: any) => {}, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
-    <div className="font-poppins text-base pb-12 relative">
+    <div className="text-base pb-12 relative">
       <div className="grid lg:grid-cols-2 relative">
         {/* banner */}
 
@@ -403,13 +434,13 @@ const Page = () => {
                     onValueChange={(value) => {
                       setFormData((prevData) => {
                         const updatedFarmDetails = [...prevData.farmDetails];
-                        const farmDetail = updatedFarmDetails[index];
+                        const farmDetail = updatedFarmDetails[0]; // Access the first farmDetail object
                         if (!farmDetail?.crops) {
                           farmDetail.crops = [];
                         }
-                        const lastCropIndex = farmDetail.crops.length - 1;
+                        const lastCropIndex = farmDetail?.crops.length - 1;
                         if (lastCropIndex === -1) {
-                          farmDetail.crops.push({
+                          farmDetail?.crops.push({
                             cropId: value,
                             farmSeasonStart: "",
                             farmSeasonEnd: "",
@@ -424,10 +455,12 @@ const Page = () => {
                     <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                       <SelectValue placeholder="select crop" />
                     </SelectTrigger>
-                    <SelectContent className="font-custom">
-                      <SelectItem value="Rice">Rice</SelectItem>
-                      <SelectItem value="Beans">Beans</SelectItem>
-                      <SelectItem value="Garri">Garri</SelectItem>
+                    <SelectContent className="">
+                      {cropId.map((crop, index) => (
+                        <SelectItem key={index} value={crop._id}>
+                          {crop.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
 
@@ -448,7 +481,8 @@ const Page = () => {
                             const updatedFarmDetails = [
                               ...prevData.farmDetails,
                             ];
-                            const farmDetail = updatedFarmDetails[index];
+                            // const farmDetail = updatedFarmDetails[index];
+                            const farmDetail = updatedFarmDetails[0];
                             const lastCropIndex = farmDetail.crops.length - 1;
                             farmDetail.crops[lastCropIndex].farmSeasonStart =
                               value;
@@ -462,7 +496,7 @@ const Page = () => {
                         <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                           <SelectValue placeholder="MM" />
                         </SelectTrigger>
-                        <SelectContent className="font-custom">
+                        <SelectContent className="">
                           <SelectItem value="January">January</SelectItem>
                           <SelectItem value="February">February</SelectItem>
                           <SelectItem value="March">March</SelectItem>
@@ -484,7 +518,7 @@ const Page = () => {
                             const updatedFarmDetails = [
                               ...prevData.farmDetails,
                             ];
-                            const farmDetail = updatedFarmDetails[index];
+                            const farmDetail = updatedFarmDetails[0];
                             const lastCropIndex = farmDetail.crops.length - 1;
                             farmDetail.crops[lastCropIndex].farmSeasonEnd =
                               value;
@@ -498,7 +532,7 @@ const Page = () => {
                         <SelectTrigger className="w-full outline-none focus:outline-none ring-0 focus:ring-0">
                           <SelectValue placeholder="MM" />
                         </SelectTrigger>
-                        <SelectContent className="font-custom">
+                        <SelectContent className="">
                           <SelectItem value="January">January</SelectItem>
                           <SelectItem value="February">February</SelectItem>
                           <SelectItem value="March">March</SelectItem>

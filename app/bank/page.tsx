@@ -24,7 +24,7 @@ const Page = () => {
       credential: "",
       email: "",
       password: "",
-      roleName: "farmer",
+      roleName: "Farmer",
       gender: "",
       resAddress: "",
       ageGroup: "",
@@ -124,7 +124,19 @@ const Page = () => {
     const value = event.target.value === "true";
     setHasSmartphone(value);
     handleChange(event);
+    checkBankExistense;
   };
+
+  // check for bank account
+  const [bank, setBank] = useState<true | false>();
+  const checkBankExistense = () => {
+    setBank(true);
+  };
+  const setBankFalse = () => {
+    setBank(false);
+  };
+
+  console.log("bank", bank);
 
   // set formData to storage to enable access in other form pages
   const router = useRouter();
@@ -138,7 +150,7 @@ const Page = () => {
   };
 
   return (
-    <div className="font-custom text-base pb-12 ">
+    <div className="text-base pb-12 ">
       <div className="grid lg:grid-cols-2 relative">
         {/* banner */}
 
@@ -210,7 +222,10 @@ const Page = () => {
                   value="true"
                   id="account-yes"
                   className="m-1"
-                  onChange={handleRadioChange}
+                  onChange={(e) => {
+                    handleRadioChange(e);
+                    checkBankExistense();
+                  }}
                 />
                 <label htmlFor="account-yes">Yes</label>
 
@@ -222,48 +237,58 @@ const Page = () => {
                   value="false"
                   id="account-no"
                   className="m-1 ml-4"
-                  onChange={handleRadioChange}
+                  onChange={(e) => {
+                    handleRadioChange(e);
+                    setBankFalse();
+                  }}
                 />
                 <label htmlFor="account-no">No</label>
               </div>
-              {/* bank name */}
-              <label htmlFor="ID type" className="flex pt-3 pb-1">
-                Bank Name*
-              </label>
-              <Select
-                onValueChange={(value) =>
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    bankDetails: { ...prevData?.bankDetails, bankName: value },
-                  }))
-                }
-              >
-                <SelectTrigger className="w-full outline-none focus:outline-none">
-                  <SelectValue placeholder="select Bank" />
-                </SelectTrigger>
-                <SelectContent className="font-custom">
-                  <SelectItem value="GTB">Guarantee Trust Bank</SelectItem>
-                  <SelectItem value="Kuda">Kuda MFB</SelectItem>
-                  <SelectItem value="Zenith">Zenith Bank</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Account Number */}
-              <div className="flex w-full justify-between gap-2 text-[15px]">
-                <div className="w-full">
-                  <label htmlFor="email" className="flex pt-3">
-                    Account Number
+              {bank === true && (
+                <div>
+                  {/* bank name */}
+                  <label htmlFor="ID type" className="flex pt-3 pb-1">
+                    Bank Name*
                   </label>
-                  <input
-                    type="number"
-                    name="accountNumber"
-                    // value={formData.account.slice(0, 8)}
-                    onChange={handleChange}
-                    placeholder="Enter account number"
-                    className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-                  />
+                  <Select
+                    onValueChange={(value) =>
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        bankDetails: {
+                          ...prevData?.bankDetails,
+                          bankName: value,
+                        },
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full outline-none focus:outline-none">
+                      <SelectValue placeholder="select Bank" />
+                    </SelectTrigger>
+                    <SelectContent className="font-custom">
+                      <SelectItem value="GTB">Guarantee Trust Bank</SelectItem>
+                      <SelectItem value="Kuda">Kuda MFB</SelectItem>
+                      <SelectItem value="Zenith">Zenith Bank</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Account Number */}
+                  <div className="flex w-full justify-between gap-2 text-[15px]">
+                    <div className="w-full">
+                      <label htmlFor="email" className="flex pt-3">
+                        Account Number
+                      </label>
+                      <input
+                        type="number"
+                        name="accountNumber"
+                        // value={formData.account.slice(0, 8)}
+                        onChange={handleChange}
+                        placeholder="Enter account number"
+                        className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {formData.bankDetails?.accountNumber?.length === 0 ? (
                 <p className="text-green-600 ml-1 invisible">i</p>
@@ -280,7 +305,7 @@ const Page = () => {
                 <button className="w-1/2 text-center border-2 border-slate-400 rounded-lg py-2 mt-2">
                   Back
                 </button>
-                {formData.bankDetails?.accountNumber?.length > 0 ? (
+                {formData.bankDetails?.accountNumber?.length > 0 || bank === false ? (
                   <button
                     onClick={handleSubmit}
                     className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]"
