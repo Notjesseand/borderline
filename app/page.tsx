@@ -222,6 +222,10 @@ const Page = () => {
     const data = await getAllSites();
     setSites(data?.data?.sites);
   };
+  useEffect(() => {
+    getSites();
+    getAllSites();
+  }, []);
 
   const ageGroup = [
     "18 - 25",
@@ -233,11 +237,6 @@ const Page = () => {
     "76 - 85",
     "85 - 100",
   ];
-
-  useEffect(() => {
-    getSites();
-    getAllSites();
-  }, []);
 
   // set formData to storage to enable access in other form pages
   const router = useRouter();
