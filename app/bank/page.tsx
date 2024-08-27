@@ -171,156 +171,171 @@ const Page = () => {
             </p>
           </div>
           {/*  */}
-          <div className="w-[90%] sm:w-3/4 mx-auto pt-14">
-            <p className="capitalize text-2xl font-semibold">create account</p>
-            <p className="text-lg my-2 capitalize">Bank Details</p>
-            <div className="text-[15px]">
-              <label htmlFor="smartphone" className="flex pt-3">
-                Do you have a Smartphone
-              </label>
+          <div className="flex">
+            <div className="w-10 mt-12 ml-8">
+              <img
+                src="Progress-2.png"
+                alt=""
+                className="flex justify-center h-auto w-auto"
+              />
+            </div>
 
-              <div className="flex items-center">
-                {/* yes option */}
-                <input
-                  type="radio"
-                  name="hasSmartphone"
-                  value="true"
-                  id="phone-yes"
-                  className="m-1"
-                  onChange={handleRadioChange}
-                />
-                <label htmlFor="phone-yes">Yes</label>
+            <div className="w-[90%] sm:w-3/4 mx-auto pt-14">
+              <p className="capitalize text-2xl font-semibold">
+                create account
+              </p>
+              <p className="text-lg my-2 capitalize">Bank Details</p>
+              <div className="text-[15px]">
+                <label htmlFor="smartphone" className="flex pt-3">
+                  Do you have a Smartphone
+                </label>
 
-                {/* no option */}
-                <input
-                  type="radio"
-                  name="hasSmartphone"
-                  value="false"
-                  id="phone-no"
-                  className="m-1 ml-4"
-                  onChange={handleRadioChange}
-                />
-                <label htmlFor="phone-no">No</label>
-              </div>
+                <div className="flex items-center">
+                  {/* yes option */}
+                  <input
+                    type="radio"
+                    name="hasSmartphone"
+                    value="true"
+                    id="phone-yes"
+                    className="m-1"
+                    onChange={handleRadioChange}
+                  />
+                  <label htmlFor="phone-yes">Yes</label>
 
-              {/* Bank Account */}
-              <label htmlFor="account" className="flex pt-3">
-                Do you have a Bank Account?
-              </label>
+                  {/* no option */}
+                  <input
+                    type="radio"
+                    name="hasSmartphone"
+                    value="false"
+                    id="phone-no"
+                    className="m-1 ml-4"
+                    onChange={handleRadioChange}
+                  />
+                  <label htmlFor="phone-no">No</label>
+                </div>
 
-              <div className="flex items-center">
-                {/* yes option */}
-                <input
-                  type="radio"
-                  name="hasBankAccount"
-                  // @ts-ignore
-                  value="true"
-                  id="account-yes"
-                  className="m-1"
-                  onChange={(e) => {
-                    handleRadioChange(e);
-                    checkBankExistense();
-                  }}
-                />
-                <label htmlFor="account-yes">Yes</label>
+                {/* Bank Account */}
+                <label htmlFor="account" className="flex pt-3">
+                  Do you have a Bank Account?
+                </label>
 
-                {/* no option */}
-                <input
-                  type="radio"
-                  name="hasBankAccount"
-                  // @ts-ignore
-                  value="false"
-                  id="account-no"
-                  className="m-1 ml-4"
-                  onChange={(e) => {
-                    handleRadioChange(e);
-                    setBankFalse();
-                  }}
-                />
-                <label htmlFor="account-no">No</label>
-              </div>
-              {bank === true && (
-                <div>
-                  {/* bank name */}
-                  <label htmlFor="ID type" className="flex pt-3 pb-1">
-                    Bank Name*
-                  </label>
-                  <Select
-                    onValueChange={(value) =>
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        bankDetails: {
-                          ...prevData?.bankDetails,
-                          bankName: value,
-                        },
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="w-full outline-none focus:outline-none">
-                      <SelectValue placeholder="select Bank" />
-                    </SelectTrigger>
-                    <SelectContent className="font-custom">
-                      <SelectItem value="GTB">Guarantee Trust Bank</SelectItem>
-                      <SelectItem value="Kuda">Kuda MFB</SelectItem>
-                      <SelectItem value="Zenith">Zenith Bank</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center">
+                  {/* yes option */}
+                  <input
+                    type="radio"
+                    name="hasBankAccount"
+                    // @ts-ignore
+                    value="true"
+                    id="account-yes"
+                    className="m-1"
+                    onChange={(e) => {
+                      handleRadioChange(e);
+                      checkBankExistense();
+                    }}
+                  />
+                  <label htmlFor="account-yes">Yes</label>
 
-                  {/* Account Number */}
-                  <div className="flex w-full justify-between gap-2 text-[15px]">
-                    <div className="w-full">
-                      <label htmlFor="email" className="flex pt-3">
-                        Account Number
-                      </label>
-                      <input
-                        type="number"
-                        name="accountNumber"
-                        // value={formData.account.slice(0, 8)}
-                        onChange={handleChange}
-                        placeholder="Enter account number"
-                        className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
-                      />
+                  {/* no option */}
+                  <input
+                    type="radio"
+                    name="hasBankAccount"
+                    // @ts-ignore
+                    value="false"
+                    id="account-no"
+                    className="m-1 ml-4"
+                    onChange={(e) => {
+                      handleRadioChange(e);
+                      setBankFalse();
+                    }}
+                  />
+                  <label htmlFor="account-no">No</label>
+                </div>
+                {bank === true && (
+                  <div>
+                    {/* bank name */}
+                    <label htmlFor="ID type" className="flex pt-3 pb-1">
+                      Bank Name*
+                    </label>
+                    <Select
+                      onValueChange={(value) =>
+                        setFormData((prevData) => ({
+                          ...prevData,
+                          bankDetails: {
+                            ...prevData?.bankDetails,
+                            bankName: value,
+                          },
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-full outline-none focus:outline-none">
+                        <SelectValue placeholder="select Bank" />
+                      </SelectTrigger>
+                      <SelectContent className="font-custom">
+                        <SelectItem value="GTB">
+                          Guarantee Trust Bank
+                        </SelectItem>
+                        <SelectItem value="Kuda">Kuda MFB</SelectItem>
+                        <SelectItem value="Zenith">Zenith Bank</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {/* Account Number */}
+                    <div className="flex w-full justify-between gap-2 text-[15px]">
+                      <div className="w-full">
+                        <label htmlFor="email" className="flex pt-3">
+                          Account Number
+                        </label>
+                        <input
+                          type="number"
+                          name="accountNumber"
+                          // value={formData.account.slice(0, 8)}
+                          onChange={handleChange}
+                          placeholder="Enter account number"
+                          className="outline-none border-2 rounded-lg py-2 w-full px-1.5 placeholder:text-slate-500"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {formData.bankDetails?.accountNumber?.length === 0 ? (
-                <p className="text-green-600 ml-1 invisible">i</p>
-              ) : formData.bankDetails?.accountNumber?.length > 3 ? (
-                <p className="text-green-600 ml-1">Future Hendrix</p>
-              ) : (
-                <p className="text-red-600 ml-1">
-                  {/* Couldn't verify account number */}
-                </p>
-              )}
-
-              {/* back / submit */}
-              <div className="mt-12 gap-x-4 flex">
-                <button className="w-1/2 text-center border-2 border-slate-400 rounded-lg py-2 mt-2">
-                  Back
-                </button>
-                {formData.bankDetails?.accountNumber?.length > 0 || bank === false ? (
-                  <button
-                    onClick={handleSubmit}
-                    className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]"
-                  >
-                    {loading ? (
-                      <l-line-spinner
-                        size="21"
-                        stroke="3"
-                        speed="1"
-                        color="white"
-                      ></l-line-spinner>
-                    ) : (
-                      "Continue"
-                    )}
-                  </button>
-                ) : (
-                  <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF] cursor-not-allowed">
-                    Continue
-                  </button>
                 )}
+
+                {formData.bankDetails?.accountNumber?.length === 0 ? (
+                  <p className="text-green-600 ml-1 invisible">i</p>
+                ) : formData.bankDetails?.accountNumber?.length > 3 ? (
+                  <p className="text-green-600 ml-1">Future Hendrix</p>
+                ) : (
+                  <p className="text-red-600 ml-1">
+                    {/* Couldn't verify account number */}
+                  </p>
+                )}
+
+                {/* back / submit */}
+                <div className="mt-12 gap-x-4 flex">
+                  <button className="w-1/2 text-center border-2 border-slate-400 rounded-lg py-2 mt-2">
+                    Back
+                  </button>
+                  {formData.bankDetails?.accountNumber?.length > 0 ||
+                  bank === false ? (
+                    <button
+                      onClick={handleSubmit}
+                      className="w-1/2 text-center text-white border-2 border-[#0D8A6A] rounded-lg py-2 mt-2 bg-[#0D8A6A]"
+                    >
+                      {loading ? (
+                        <l-line-spinner
+                          size="21"
+                          stroke="3"
+                          speed="1"
+                          color="white"
+                        ></l-line-spinner>
+                      ) : (
+                        "Continue"
+                      )}
+                    </button>
+                  ) : (
+                    <button className="w-1/2 text-center text-white border-2 border-slate-400 rounded-lg py-2 mt-2 bg-[#90D0BF] cursor-not-allowed">
+                      Continue
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

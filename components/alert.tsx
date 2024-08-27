@@ -38,10 +38,7 @@ export function AlertDialogDemo() {
           </AlertDialogAction>
           <AlertDialogCancel className="justify-center mt-2">
             <Link href={"/new-farm"} className="w-full h-full">
-              <button
-                className="w-full h-full bg-purple-400"
-                onClick={onClose}
-              >
+              <button className="w-full h-full" onClick={onClose}>
                 Yes, I have another farm
               </button>
             </Link>

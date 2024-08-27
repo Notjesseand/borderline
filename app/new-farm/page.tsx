@@ -294,7 +294,9 @@ const Page = () => {
 
   const getCrops = async () => {
     const data = await getAllCrops();
-    setCropId(data.data.crops);
+    if (data) {
+      setCropId(data.data.crops);
+    }
   };
 
   useEffect(() => {
@@ -433,6 +435,16 @@ const Page = () => {
                       </button>
                     ))}
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex w-full justify-center items-center pt-7">
+                <div className="border w-full h-0 border-[#EAECF0] flex" />
+                <p className="flex w-52 text-center justify-center text-[15px]">
+                  new farm
+                </p>
+                <div className="border w-full h-0 border-[#EAECF0] flex" />
               </div>
             </div>
 
