@@ -13,6 +13,11 @@ import { lineSpinner } from "ldrs";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { useDialog } from "@/hooks/useDialog";
+import { FaRegTrashCan } from "react-icons/fa6";
+import { CiEdit } from "react-icons/ci";
+import { PiFarm } from "react-icons/pi";
+import { IoLocationOutline } from "react-icons/io5";
+import { PiPlant } from "react-icons/pi";
 import {
   Select,
   SelectContent,
@@ -82,6 +87,9 @@ const Page = () => {
     ],
   });
 
+  const [oldFarmDetails, setOldFarmDetails] = useState([]);
+  const oldCrops = ["Rice", "Beans", "Cassava"];
+
   // Fetch data from localStorage when the component mounts
   useEffect(() => {
     const data = localStorage.getItem("formData");
@@ -90,7 +98,10 @@ const Page = () => {
       parsedFormData = JSON.parse(data);
     }
     setFormData(parsedFormData);
+    setOldFarmDetails(parsedFormData.farmDetails);
   }, []);
+
+  // console.log(oldFarmDetails[0].crops);
 
   const [fileName, setFileName] = useState("No file chosen");
 
@@ -259,11 +270,6 @@ const Page = () => {
         );
         return { ...prevFormData, farmDetails: updatedFarmDetails };
       });
-      // } else {
-      //   setFormData((prevData) => ({
-      //     ...prevData,
-      //     [name]: newValue,
-      //   }));
     }
   };
 
@@ -311,9 +317,7 @@ const Page = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     toggle();
-    // localStorage.removeItem("formData");
-    localStorage.setItem("formData", JSON.stringify(formData));
-
+    localStorage.removeItem("formData");
     try {
       const farmer = await authenticateFarmer(formData);
       console.log("Farmer authenticated:", farmer);
@@ -363,7 +367,76 @@ const Page = () => {
             <p className="capitalize text-2xl font-semibold">create account</p>
 
             <p className="text-lg my-2 capitalize">Farm Registration</p>
-            {/* form */}
+
+            {/* old farm */}
+            <div className="bg-[#FEFDF9] w-full pb-5 border-[#FEF0C7] border-2 rounded-lg">
+              <div className="flex justify-between px-4 pt-2">
+                <p>Farm One</p>
+                <div className="flex gap-2 items-center">
+                  <CiEdit className="text-xl cursor-pointer" />
+                  <FaRegTrashCan className="cursor-pointer" />
+                </div>
+              </div>
+              <hr className="border-b border-[#FEF0C7] pb- px-3 mx-4 mt-3" />
+
+              {/* added farm summary */}
+              <div className="flex justify-between px-10 pt-4 text-[15px]">
+                {/* farm name */}
+
+                <div>
+                  <div className="text-[15px] flex items-center">
+                    <PiFarm className="text-lg mr-1" />
+                    Farm Name
+                  </div>
+                  {/* @ts-ignore */}
+                  <div>{oldFarmDetails[0]?.name}</div>
+                </div>
+
+                {/* Longtitude */}
+                <div className="flex gap-8">
+                  <div>
+                    <div className="flex items-center">
+                      Longtitude
+                      <IoLocationOutline className="text-lg mr-1" />
+                    </div>
+
+                    <div className="text-[#079455] flex items-center">
+                      {/* @ts-ignore */}
+                      {oldFarmDetails[0]?.long}
+                    </div>
+                  </div>
+
+                  {/* latitude */}
+                  <div>
+                    <div>Latitude</div>
+                    <div className="text-[#1570EF]">
+                      {/* @ts-ignore */}
+                      {oldFarmDetails[0]?.lat}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr className="border-b border-[#FEF0C7] px-3 mx-4 mt-5" />
+              {/* crops produced */}
+              <div className="px-6 pt-3 text-[15px]">
+                <p className="text-[#667085] flex items-center">
+                  <PiPlant className="text-xl mr-1" /> Crops produced
+                </p>
+                <div className="flex gap-2 pt-2">
+                  {oldCrops &&
+                    oldCrops.map((crop, index) => (
+                      <button
+                        key={index}
+                        className="rounded-full px-5 py-1.5 bg-[#FFFAEB] border-[#FEDF89] border-[1.5px] text-[#4E1D09] font-semibold"
+                      >
+                        {crop}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* new farm form */}
             <div className="mt-5 text-[15px]">
               <div className="flex w-full justify-between gap-2 text-[15px]">
                 <div className="w-full">

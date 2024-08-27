@@ -125,6 +125,7 @@ const Page = () => {
     } else {
       setMatch(false);
     }
+    validate()
   };
 
   const validatePassword = () => {
@@ -157,8 +158,7 @@ const Page = () => {
     const isValid =
       firstName.length > 0 &&
       lastName.length > 0 &&
-      password.length > 0 &&
-      confirmPassword.length > 0;
+      password.length > 0 && confirmPassword.length> 0
 
     setValidationState(isValid);
   };
