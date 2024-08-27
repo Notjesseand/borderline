@@ -236,6 +236,7 @@ const Page = () => {
 
   useEffect(() => {
     getSites();
+    getAllSites();
   }, []);
 
   // set formData to storage to enable access in other form pages
@@ -279,7 +280,11 @@ const Page = () => {
           {/* personal information  */}
           <div className="flex">
             <div className="w-10 mt-24 ml-8">
-              <img src="Progress-1.png" alt="" className="flex justify-center h-auto w-auto" />
+              <img
+                src="Progress-1.png"
+                alt=""
+                className="flex justify-center h-auto w-auto"
+              />
             </div>
 
             <div className="w-[90%] sm:w-3/4 mx-auto pt-14">
