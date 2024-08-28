@@ -278,7 +278,7 @@ const Page = () => {
 
           {/* personal information  */}
           <div className="flex">
-            <div className="w-10 mt-24 ml-8">
+            <div className="w-10 mt-24 ml-8 hidden lg:block">
               <img
                 src="Progress-1.png"
                 alt=""

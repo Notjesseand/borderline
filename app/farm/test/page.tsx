@@ -133,9 +133,9 @@ const Page = () => {
 
   const [cropAndMonths, setCropAndMonths] = useState([
     {
-      cropId: "beans",
-      farmSeasonStart: "January",
-      farmSeasonEnd: "December",
+      cropId: "",
+      farmSeasonStart: "",
+      farmSeasonEnd: "",
     },
   ]);
 
@@ -150,36 +150,22 @@ const Page = () => {
     ]);
   };
 
-  const handleCropChange = (index: number, cropId: string) => {
-    setFormData((prevData: any) => {
-      const updatedFarmDetails = prevData?.farmDetails?.map(
-        (farmDetail: any, farmIndex: any) => {
-          if (farmIndex === index) {
-            const updatedCrops = [...farmDetail.crops, { name: cropId }];
-            return { ...farmDetail, crops: updatedCrops };
-          }
-          return farmDetail;
-        }
-      );
-      return { ...prevData, farmDetails: updatedFarmDetails };
+  const addCropToFormData = (cropData: any) => {
+    setFormData((prevFormData) => {
+      const updatedFarmDetails = prevFormData.farmDetails.map((farmDetail) => {
+        return {
+          ...farmDetail,
+          crops: cropAndMonths,
+        };
+      });
+      return { ...prevFormData, farmDetails: updatedFarmDetails };
     });
+
   };
 
-  const handleStartMonthChange = (index: number, startMonth: string) => {
-    setCropAndMonths((prevCropAndMonths) => {
-      const updatedCropAndMonths = [...prevCropAndMonths];
-      updatedCropAndMonths[index].farmSeasonStart = startMonth;
-      return updatedCropAndMonths;
-    });
-  };
-
-  const handleEndMonthChange = (index: number, endMonth: string) => {
-    setCropAndMonths((prevCropAndMonths) => {
-      const updatedCropAndMonths = [...prevCropAndMonths];
-      updatedCropAndMonths[index].farmSeasonEnd = endMonth;
-      return updatedCropAndMonths;
-    });
-  };
+  useEffect(() => {
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [formData]);
 
   // validation state
   const [validationState, setValidationState] = useState(false);
@@ -259,11 +245,6 @@ const Page = () => {
         );
         return { ...prevFormData, farmDetails: updatedFarmDetails };
       });
-      // } else {
-      //   setFormData((prevData) => ({
-      //     ...prevData,
-      //     [name]: newValue,
-      //   }));
     }
   };
 
@@ -291,7 +272,7 @@ const Page = () => {
     setCropId(data.data.crops);
   };
 
-  console.log(cropAndMonths)
+  console.log(cropAndMonths);
 
   useEffect(() => {
     getCrops();
@@ -311,10 +292,9 @@ const Page = () => {
   // }, []);
   // funtion to submit form Data
   const handleSubmit = async (e: any) => {
+    addCropToFormData(e)
     e.preventDefault();
     toggle();
-    // localStorage.removeItem("formData");
-    localStorage.setItem("formData", JSON.stringify(formData));
 
     try {
       const farmer = await authenticateFarmer(formData);
@@ -437,7 +417,7 @@ const Page = () => {
                 <p className="mt-3">Crops cultivated and planting season </p>
 
                 {/* card */}
-                {cropAndMonths.map((item: any, index: number) => (
+                {cropAndMonths.map((item, index) => (
                   <div
                     key={index}
                     className="rounded-lg bg-[#F9FAFB] py-4 px-5 mt-3 relative"
@@ -448,30 +428,9 @@ const Page = () => {
                     {/* Crop cultivated on the farm */}
                     <Select
                       onValueChange={(value) => {
-                        setFormData((prevData: any) => {
-                          if (prevData.farmDetails) {
-                            const updatedFarmDetails = [
-                              ...prevData.farmDetails,
-                            ];
-                            const farmDetail = updatedFarmDetails[0]; // Access the first farmDetail object
-                            if (!farmDetail?.crops) {
-                              farmDetail.crops = [];
-                            }
-                            const lastCropIndex = farmDetail?.crops.length - 1;
-                            if (lastCropIndex === -1) {
-                              farmDetail?.crops.push({
-                                cropId: value,
-                                farmSeasonStart: "",
-                                farmSeasonEnd: "",
-                              });
-                            } else {
-                              farmDetail.crops[lastCropIndex].cropId = value;
-                            }
-                            return {
-                              ...prevData,
-                              farmDetails: updatedFarmDetails,
-                            };
-                          }
+                        setCropAndMonths((prevCropAndMonths) => {
+                          prevCropAndMonths[index].cropId = value;
+                          return [...prevCropAndMonths];
                         });
                       }}
                     >
@@ -500,32 +459,9 @@ const Page = () => {
                         {/* Start month form */}
                         <Select
                           onValueChange={(value) => {
-                            setFormData((prevData: any) => {
-                              if (prevData === null || prevData === undefined) {
-                                // Handle the case where prevData is null or undefined
-                                return {
-                                  farmDetails: [
-                                    { crops: [{ farmSeasonStart: value }] },
-                                  ],
-                                };
-                              } else if (prevData.farmDetails) {
-                                const updatedFarmDetails = [
-                                  ...prevData.farmDetails,
-                                ];
-                                const farmDetail = updatedFarmDetails[0];
-                                const lastCropIndex =
-                                  farmDetail.crops.length - 1;
-                                farmDetail.crops[
-                                  lastCropIndex
-                                ].farmSeasonStart = value;
-                                return {
-                                  ...prevData,
-                                  farmDetails: updatedFarmDetails,
-                                };
-                              } else {
-                                // Handle the case where farmDetails is undefined or null
-                                return prevData;
-                              }
+                            setCropAndMonths((prevCropAndMonths) => {
+                              prevCropAndMonths[index].farmSeasonStart = value;
+                              return [...prevCropAndMonths];
                             });
                           }}
                         >
@@ -553,42 +489,9 @@ const Page = () => {
                         {/* end month form */}
                         <Select
                           onValueChange={(value) => {
-                            setFormData((prevData: any) => {
-                              if (prevData === null || prevData === undefined) {
-                                // Handle the case where prevData is null or undefined
-                                return {
-                                  farmDetails: [
-                                    { crops: [{ farmSeasonEnd: value }] },
-                                  ],
-                                };
-                              } else if (prevData.farmDetails) {
-                                const updatedFarmDetails = [
-                                  ...prevData.farmDetails,
-                                ];
-                                const farmDetail = updatedFarmDetails[0];
-                                if (farmDetail.crops) {
-                                  const lastCropIndex =
-                                    farmDetail.crops.length - 1;
-                                  farmDetail.crops[
-                                    lastCropIndex
-                                  ].farmSeasonEnd = value;
-                                } else {
-                                  // Handle the case where farmDetail.crops is undefined or null
-                                  farmDetail.crops = [{ farmSeasonEnd: value }];
-                                }
-                                return {
-                                  ...prevData,
-                                  farmDetails: updatedFarmDetails,
-                                };
-                              } else {
-                                // Handle the case where farmDetails is undefined or null
-                                return {
-                                  ...prevData,
-                                  farmDetails: [
-                                    { crops: [{ farmSeasonEnd: value }] },
-                                  ],
-                                };
-                              }
+                            setCropAndMonths((prevCropAndMonths) => {
+                              prevCropAndMonths[index].farmSeasonEnd = value;
+                              return [...prevCropAndMonths];
                             });
                           }}
                         >
@@ -615,6 +518,8 @@ const Page = () => {
                 >
                   <LuPlus className="text-base" /> Add another crop
                 </button>
+
+                <button onClick={addCropToFormData}>Add To FormData</button>
 
                 {/*  */}
                 <label htmlFor="drop" className="mt-4 flex ml-1">
